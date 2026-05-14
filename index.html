@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>minic - Csak a munkát vesszük komolyan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --minic-blue: #3B82F6;
+            --minic-yellow: #FBBF24;
+            --minic-dark: #1F2937;
+        }
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            scroll-behavior: smooth;
+            background-color: #fcfcfc;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .brand-font {
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+        }
+
+        .dashed-border {
+            border: 3px dashed #cbd5e1;
+            border-radius: 2rem;
+        }
+
+        .blob {
+            position: absolute;
+            z-index: -1;
+            filter: blur(40px);
+            opacity: 0.15;
+            border-radius: 50%;
+        }
+
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 6rem 1rem;
+            position: relative;
+        }
+
+        .btn-playful {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .btn-playful:hover {
+            transform: scale(1.05) rotate(-1deg);
+        }
+
+        #progress-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background-color: #f1f5f9;
+        }
+
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--minic-blue);
+            transition: width 0.1s ease-out;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            border-radius: 2.5rem;
+            overflow: hidden;
+        }
+        .slider-track {
+            display: flex;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+        }
+        .slide {
+            min-width: 100%;
+            height: 100%;
+        }
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .timeline-wrapper {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: repeating-linear-gradient(
+                to bottom,
+                var(--minic-blue),
+                var(--minic-blue) 10px,
+                transparent 10px,
+                transparent 20px
+            );
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            width: 100%;
+            margin-bottom: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .timeline-card {
+            width: 42%;
+            background: white;
+            padding: 1.75rem;
+            border-radius: 1.5rem;
+            border: 2px dashed #e2e8f0;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .timeline-dot {
+            width: 54px;
+            height: 54px;
+            background: var(--minic-blue);
+            border: 4px solid white;
+            border-radius: 50%;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 0.75rem;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .timeline-dot span {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-card {
+            margin-right: 58%;
+            text-align: right;
+        }
+
+        .timeline-item:nth-child(even) .timeline-card {
+            margin-left: 58%;
+            text-align: left;
+        }
+
+        .sprint-item {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        .sprint-marker {
+            background: #fff;
+            border: 2px solid var(--minic-blue);
+            color: var(--minic-blue);
+            padding: 6px 18px;
+            border-radius: 1rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .example-btn {
+            transition: all 0.2s ease;
+            border: 2px dashed #e2e8f0;
+            background: #f8fafc;
+        }
+        .example-btn:hover {
+            border-color: var(--minic-blue);
+            background-color: #eff6ff;
+            color: var(--minic-blue);
+            border-style: solid;
+        }
+        .example-btn.active {
+            background-color: var(--minic-blue);
+            color: white;
+            border-color: var(--minic-blue);
+            border-style: solid;
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2);
+        }
+
+        .reveal-item {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .reveal-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Turning Point Visuals */
+        .comparison-line {
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            position: relative;
+            display: flex;
+        }
+        .line-segment {
+            flex: 1;
+            height: 100%;
+            border-right: 2px solid white;
+        }
+        .line-segment:last-child { border-right: none; }
+
+        @media (max-width: 768px) {
+            .timeline-line {
+                left: 20px;
+                transform: none;
+            }
+            .timeline-dot {
+                left: 20px;
+                transform: translateX(-50%);
+            }
+            .timeline-item, .timeline-item:nth-child(even) {
+                flex-direction: row;
+                justify-content: flex-start;
+                padding-left: 50px;
+            }
+            .timeline-card, .timeline-item:nth-child(odd) .timeline-card, .timeline-item:nth-child(even) .timeline-card {
+                width: 100%;
+                margin: 0;
+                text-align: left;
+            }
+            .sprint-item {
+                justify-content: flex-start;
+                padding-left: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center">
+                <a href="#hero">
+                    <img src="https://minic.ro/wp-content/uploads/2018/02/miniclogo.png" alt="minic logo" class="h-10 md:h-12 w-auto">
+                </a>
+            </div>
+            <a href="#contact" class="bg-blue-500 text-white px-6 py-2 rounded-full font-bold btn-playful shadow-lg shadow-blue-200">Kapcsolat</a>
+        </div>
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="bg-white pt-32">
+        <div class="blob w-64 h-64 bg-blue-400 top-20 left-10"></div>
+        <div class="blob w-96 h-96 bg-yellow-400 bottom-20 right-10"></div>
+        
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
+                <div class="text-left">
+                    <span class="inline-block px-6 py-2 bg-blue-100 text-blue-600 rounded-full text-lg font-bold mb-6 tracking-wide">Szia!</span>
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 leading-tight text-gray-900">
+                        csak a munkát vesszük <br> 
+                        <span class="text-blue-500">komolyan.</span>
+                    </h1>
+                    <div class="text-lg text-gray-600 leading-relaxed space-y-6 font-medium">
+                        <p>2011 óta azon dolgozunk, hogy a helyi és nemzetközi partnereinket a lehető legmagasabb színvonalon szolgáljuk ki software fejlesztéssel, webes technológiákon alapuló megoldásokkal, grafikai tervezéssel és online marketinggel.</p>
+                        <p>Ez idő alatt pedig folyamatosan igyekszünk odafigyelni arra, hogy munkánk során egymást előre- és ne letoljuk, hogy szakmailag együtt fejlődjünk, és szeressük, amit csinálunk.</p>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="dashed-border p-3 bg-white shadow-2xl rotate-1">
+                        <div class="slider-container rounded-[1.5rem] overflow-hidden">
+                            <div class="slider-track" id="sliderTrack">
+                                <div class="slide"><img src="https://minic.ro/wp-content/uploads/2025/02/0194DS1_7478-1-1024x682.jpg" alt="minic iroda"></div>
+                                <div class="slide"><img src="https://minic.ro/wp-content/uploads/2025/02/0015DS2_5098-1-1024x682.jpg" alt="minic csapat"></div>
+                                <div class="slide"><img src="https://minic.ro/wp-content/uploads/2025/02/0152DS2_5169-1-1024x682.jpg" alt="minic munka"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full text-center mb-16 font-black text-gray-900">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                    <div><div class="text-4xl lg:text-5xl text-blue-500 mb-2 font-black">400+</div><div class="text-sm uppercase tracking-widest text-gray-400">projekt</div></div>
+                    <div><div class="text-4xl lg:text-5xl text-blue-500 mb-2 font-black">30+</div><div class="text-sm uppercase tracking-widest text-gray-400">munkatárs</div></div>
+                    <div><div class="text-4xl lg:text-5xl text-blue-500 mb-2 font-black">14+ év</div><div class="text-sm uppercase tracking-widest text-gray-400">tapasztalat</div></div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-4 md:gap-8 pb-12">
+                <div class="px-8 py-4 border-2 border-dashed border-blue-200 rounded-[2rem] font-bold text-blue-600 text-lg bg-white/50">Tervezés</div>
+                <div class="px-8 py-4 border-2 border-dashed border-yellow-400 rounded-[2rem] font-bold text-yellow-600 text-lg bg-white/50">Szoftverfejlesztés</div>
+                <div class="px-8 py-4 border-2 border-dashed border-gray-300 rounded-[2rem] font-bold text-gray-500 text-lg bg-white/50">Online marketing</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section class="bg-gray-50 py-24">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-24">
+                <h2 class="text-4xl md:text-5xl font-black mb-6">Mi történik a motorháztető alatt?</h2>
+                <p class="text-xl text-gray-500 font-bold">Avagy hogy néz ki maga a fejlesztési folyamat?</p>
+            </div>
+
+            <div class="timeline-wrapper">
+                <div class="timeline-line"></div>
+                <div class="relative z-10">
+                    <div class="timeline-item"><div class="timeline-dot bg-blue-500">0.<span>nap</span></div><div class="timeline-card"><h4 class="text-xl font-bold mb-3 text-blue-600">Start 🚩</h4><p class="text-sm text-gray-600 leading-relaxed">Az ügyfél jellemzően egy konkrét problémával keres meg minket, amit szeretne megoldani. Mivel sokszor üzletileg érzékeny információkról beszélünk, az első lépés általában egy titoktartási megállapodás aláírása.</p></div></div>
+                    <div class="timeline-item"><div class="timeline-dot bg-yellow-400">3.<span>nap</span></div><div class="timeline-card"><h4 class="text-xl font-bold mb-3 text-yellow-600 font-black">Előzetes specifikáció</h4><p class="text-sm text-gray-600 leading-relaxed">Ezután az ügyfél elmeséli, hogy pontosan milyen problémával küzd, mit szeretne elérni, és miért fontos számára a megoldás. Mi erre készítünk egy első javaslatot. Ez még nem egy részletes fejlesztési terv, inkább a nagy képet mutatja meg.</p></div></div>
+                    <div class="timeline-item"><div class="timeline-dot bg-gray-700">17.<span>nap</span></div><div class="timeline-card"><h4 class="text-xl font-bold mb-3 text-gray-700">Tervezés</h4><p class="text-sm text-gray-600 leading-relaxed">Ennek a javaslatnak a kidolgozásában általában részt vesz egy vezető fejlesztő, az ügyfél oldala, egy projektmenedzser, valamint valaki, aki üzletfejlesztésért vagy ügyfélsikerért felel.</p></div></div>
+                    <div class="timeline-item"><div class="timeline-dot bg-blue-400">30.<span>nap</span></div><div class="timeline-card"><h4 class="text-xl font-bold mb-3 text-blue-500">Fejlesztési terv</h4><p class="text-sm text-gray-600 leading-relaxed">Ha az ügyfélnek tetszik az irány, készítünk egy előzetes fejlesztési tervet és egy előzetes költségbecslést. Ez alapján már látható, hogy milyen nagyságrendű munkáról beszélünk.</p></div></div>
+                    <div class="timeline-item"><div class="timeline-dot bg-green-500">45.<span>nap</span></div><div class="timeline-card"><h4 class="text-xl font-bold mb-3 text-green-600">Szerződés és Rajt</h4><p class="text-sm text-gray-600 leading-relaxed">Ha ezt az ügyfél elfogadja, leszerződünk, és elkezdődik a tényleges munka.</p></div></div>
+                    <div class="timeline-item"><div class="timeline-dot bg-blue-600">60.<span>nap</span></div><div class="timeline-card"><h4 class="text-xl font-bold mb-3 text-blue-800">Projektet mérföldkövekre bontjuk</h4><p class="text-sm text-gray-600 leading-relaxed">A fejlesztés első része általában azzal indul, hogy nagyon pontosan tisztázzuk, hova szeretnénk eljutni a projekt végére. Meghatározzuk a fő mérföldköveket, majd elkezdjük a legfontosabb feladatok részletes kidolgozását.</p></div></div>
+                    <div class="timeline-item"><div class="timeline-dot bg-yellow-500">80.<span>nap</span></div><div class="timeline-card"><h4 class="text-xl font-bold mb-3 text-yellow-700">Iteratív fejlesztés</h4><p class="text-sm text-gray-600 leading-relaxed">A gyakorlatban általában kéthetes sprintekben haladunk. Ez azt jelenti, hogy két hét alatt elkészül egy újabb működő rész. Hagyományos tempó mellett egy fejlesztő 4-5 nagyobb feladatot tud megoldani egy szakaszban.</p></div></div>
+                    <div class="sprint-item"><div class="sprint-marker text-center">94. nap - Sprint 1 vége / Visszajelzés <br><span class="text-[10px] font-medium opacity-70">Az elkészült fejlesztéseket elérhetővé tesszük tesztelésre és visszajelzésre.</span></div></div>
+                    <div class="sprint-item"><div class="sprint-marker">108. nap - Sprint 2</div></div>
+                    <div class="sprint-item"><div class="sprint-marker">122. nap - Sprint 3</div></div>
+                    <div class="sprint-item"><div class="sprint-marker">136. nap - Sprint 4</div></div>
+                    <div class="sprint-item"><div class="sprint-marker">150. nap - Sprint 5</div></div>
+                    <div class="sprint-item"><div class="sprint-marker">164. nap - Sprint 6</div></div>
+                    <div class="timeline-item"><div class="timeline-dot bg-blue-500">178.<span>nap</span></div><div class="timeline-card"><h4 class="text-xl font-bold mb-3 text-blue-600">A felhasználó számára is használható termék</h4><p class="text-sm text-gray-600 leading-relaxed">Igyekszünk minél korábban elkészíteni egy MVP-t, amit már a végfelhasználók is használhatnak. Az ő visszajelzésük a legértékesebb.</p></div></div>
+                    <div class="timeline-item"><div class="timeline-dot bg-gray-900">365.<span>nap</span></div><div class="timeline-card"><h4 class="text-xl font-bold mb-3 text-gray-900">Fejlesztés vége</h4><p class="text-sm text-gray-600 leading-relaxed font-bold">Egy év alatt egy 3-4 fős csapat képes megvalósítani egy közepes komplexitású projektet.</p></div></div>
+                </div>
+            </div>
+
+            <div class="mt-32 text-center max-w-3xl mx-auto">
+                <div class="p-12 bg-white rounded-[3rem] dashed-border border-blue-100 shadow-xl relative overflow-hidden">
+                    <div class="absolute -top-10 -left-10 w-40 h-40 bg-blue-50 rounded-full opacity-30"></div>
+                    <h3 class="text-3xl font-black mb-8 text-gray-900 uppercase tracking-tight text-blue-500">Erőforrásköltségek</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10 text-left text-gray-800">
+                        <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100"><p class="text-sm text-gray-500 mb-2 font-bold uppercase tracking-widest">Napi díjazás</p><p class="text-lg font-bold">1 ember napidíja tapasztalati szinttől függően <span class="text-blue-600">240 - 320 euró</span> között mozog.</p></div>
+                        <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100"><p class="text-sm text-blue-400 mb-2 font-bold uppercase tracking-widest">Éves kalkuláció</p><p class="text-lg font-bold">Átlag havonta 20 munkanappal számolva 4 emberrel ez 12 hónap alatt <span class="text-blue-600">230.000 - 300.000 euró</span> között mozog.</p></div>
+                    </div>
+                    <p class="text-xl font-extrabold text-gray-900 italic leading-relaxed text-gray-600">Okkal merül fel a kérdés, hogy kinek éri meg ekkora összeget kifizetni egy szoftverfejlesztésre?</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kinek éri meg mégis? Section -->
+    <section id="why-it-matters" class="bg-white py-24">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-4xl md:text-5xl font-black mb-8 text-gray-900 text-center">Kinek éri meg mégis?</h2>
+            <p class="text-lg text-gray-600 mb-16 font-medium leading-relaxed max-w-4xl mx-auto text-center">
+                Az előző 14 évben nagyon sok projekttel találkoztunk és hazudnánk ha azt mondanánk, hogy csak ez alapján lehet csoportosítani őket, de üzleti szempontból talán ez a leginkább ésszerű.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start relative">
+                <div class="space-y-16 pb-24">
+                    <!-- Business enablement -->
+                    <div class="bg-gray-50 p-8 rounded-[2rem] border-2 border-dashed border-gray-200">
+                        <div class="space-y-4 mb-6">
+                            <h3 class="text-2xl font-black text-blue-500 font-black">Business enablement</h3>
+                            <p class="text-gray-600 text-sm leading-relaxed font-medium">Azok a projektek tartoznak ide melyek esetén a fejlesztés révén vált lett elérhető egy tevékenység, vagy a fejlesztés nélkül a cég nem tudott volna tovább növekedni, vagy versenyképes maradni. Ezek esetén mindig volt egy már működő és teljesítő üzleti logika, amit fejlesztésekkel hatékonyabbá teszünk.</p>
+                        </div>
+                        <div class="pt-4 border-t border-gray-200 mb-6">
+                            <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Feltételezés</h4>
+                            <p class="text-blue-600 font-bold text-sm bg-blue-50 p-4 rounded-xl border border-blue-100">Van egy olyan belső probléma, vagy akadály aminek elhárítása esetén annyi többlet bevételere lehet szert tenni ami fedezi a fejlesztés költségeit.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Példák (Kattints a részletekért)</h4>
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="showProjectDetails('IBaseT')" class="example-btn px-6 py-2 rounded-xl text-sm font-bold">IBaseT</button>
+                                <button onclick="showProjectDetails('Odemly')" class="example-btn px-6 py-2 rounded-xl text-sm font-bold">Odemly</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Termék vagy platform -->
+                    <div class="bg-gray-50 p-8 rounded-[2rem] border-2 border-dashed border-gray-200">
+                        <div class="space-y-4 mb-6">
+                            <h3 class="text-2xl font-black text-blue-500 font-black">Termék vagy platform</h3>
+                            <p class="text-gray-600 text-sm leading-relaxed font-medium">Azok a fejlesztések tartoznak ide melyek esetén a fejlesztés elsősorban nem a belső működést támogatták hanem egy olyan vélt vagy valós problémát oldottak meg amiről nagy biztonsággal feltételezték hogy nagy számban tudják értékesíteni.</p>
+                        </div>
+                        <div class="pt-4 border-t border-gray-200 mb-6">
+                            <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Feltételezés</h4>
+                            <p class="text-blue-600 font-bold text-sm bg-blue-50 p-4 rounded-xl border border-blue-100">Elég nagy számban előfordul és elég jelentős a probléma, hogy azért emberek fizessenek annyit ami fedezni tudja a fejlesztés kölségeit.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Példák (Kattints a részletekért)</h4>
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="showProjectDetails('Ebillo')" class="example-btn px-6 py-2 rounded-xl text-sm font-bold">Ebillo</button>
+                                <button onclick="showProjectDetails('Cocolabclub')" class="example-btn px-6 py-2 rounded-xl text-sm font-bold">Cocolabclub</button>
+                                <button onclick="showProjectDetails('Bettercard')" class="example-btn px-6 py-2 rounded-xl text-sm font-bold">Bettercard</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Új csatorna -->
+                    <div class="bg-gray-50 p-8 rounded-[2rem] border-2 border-dashed border-gray-200">
+                        <div class="space-y-4 mb-6">
+                            <h3 class="text-2xl font-black text-blue-500 font-black">Új csatorna</h3>
+                            <p class="text-gray-600 text-sm leading-relaxed font-medium">Azok a fejlesztések tartoznak ide ahol a fejlesztések révén új üzleti csatornákat nyitottunk meg. Ez részben hasonlít az első kategóriához, de mégis külön kezelném. Itt a cégnek már van terméke vagy szolgáltatása, de a szoftverrel új módon tud piacra menni.</p>
+                        </div>
+                        <div class="pt-4 border-t border-gray-200 mb-6">
+                            <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Feltételezés</h4>
+                            <p class="text-blue-600 font-bold text-sm bg-blue-50 p-4 rounded-xl border border-blue-100">A csatorna által generált többlet bevétel biztosítja a fejlesztés költségeit és még marad is meg.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Példák (Kattints a részletekért)</h4>
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="showProjectDetails('Turbopass')" class="example-btn px-6 py-2 rounded-xl text-sm font-bold">Turbopass</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:sticky lg:top-32 h-fit">
+                    <div id="project-box" class="dashed-border p-10 bg-white shadow-2xl rotate-2 min-h-[450px] w-full flex flex-col transition-all duration-500">
+                        <div id="box-empty" class="h-full flex flex-col items-center justify-center text-center py-20">
+                            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                                <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-400 leading-relaxed">Kattints egy példára a bal oldalon a részletekért!</h3>
+                        </div>
+                        <div id="box-content" class="h-full flex flex-col hidden">
+                            <h3 id="project-title" class="text-3xl font-black mb-8 text-blue-500 font-black"></h3>
+                            <div id="project-text" class="space-y-6 text-gray-700 leading-relaxed font-medium"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gondolom magadra ismertél Section -->
+    <section id="self-recognition" class="bg-blue-50/50 py-24 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-4xl md:text-5xl font-black mb-16 text-gray-900 text-center font-black">Gondolom magadra ismertél</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="flex flex-col items-center lg:items-start">
+                    <div class="dashed-border p-8 bg-white shadow-2xl -rotate-3 max-w-sm w-full mb-10">
+                        <div class="w-full aspect-square bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
+                            <svg class="w-32 h-32 text-gray-300" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                        <p class="text-center font-black text-blue-500 text-xl italic uppercase tracking-tight">Vállalkozó szellem</p>
+                    </div>
+                    <h3 class="text-2xl md:text-3xl font-black text-gray-800 text-center lg:text-left leading-tight max-w-md font-black">Melyik cég vagy porblémacsoport kapcsán <span class="text-blue-500">ismertél magadra?</span></h3>
+                </div>
+                <div class="relative">
+                    <div class="flex flex-col items-center lg:items-start gap-8">
+                        <button onclick="revealNextRecognitionItem()" id="plus-btn" class="w-20 h-20 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-xl shadow-blue-200 btn-playful z-10 font-black text-3xl">+</button>
+                        <div id="recognition-items" class="w-full space-y-6">
+                            <div class="reveal-item dashed-border p-6 bg-white"><p class="text-gray-700 leading-relaxed"><span class="font-black text-blue-500 mr-2 text-xl">1.</span>Valószínüleg van egy olyan belső probléma amit megoldva egy év alatt termel a vállalkozásod <span class="font-bold">230.000 euró</span> többlet bevételt. Ugyanis ennyi többlet megtérülést kell termelni, hogy a befektetés megtérüljön.</p></div>
+                            <div class="reveal-item dashed-border p-6 bg-white"><p class="text-gray-700 leading-relaxed"><span class="font-black text-blue-500 mr-2 text-xl">2.</span>Bizonyára számtalan ötleted van amit meg lehet valósítani és könnyedén el lehetne adni havi 10 euróért mondjuk 2000 felhasználónak. Ugyanis legalább ennyi eladásra van szükség, hogy a befektetés megtérüljön.</p></div>
+                            <div class="reveal-item dashed-border p-6 bg-white"><p class="text-gray-700 leading-relaxed"><span class="font-black text-blue-500 mr-2 text-xl">3.</span>Gondolom van pár olyan ötleted mivel annyival hatékonyabb lenne a vállalkozásod, hogy értelmezhető legyen ez a <span class="font-bold">230.000 euró</span> befektetés.</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2"><button onclick="toggleSlideInCard(true)" class="bg-gray-800 text-white px-8 py-3 rounded-full font-bold text-sm btn-playful shadow-lg opacity-50 hover:opacity-100">Nem találtad meg magad?</button></div>
+        <div id="slide-in-card" class="fixed inset-x-0 bottom-0 z-[60] p-6 transition-transform duration-700 translate-y-full flex justify-center">
+            <div class="bg-blue-600 text-white p-10 rounded-t-[3rem] shadow-2xl max-w-3xl w-full relative">
+                <button onclick="toggleSlideInCard(false)" class="absolute top-6 right-8 text-white/50 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <p class="text-2xl md:text-3xl font-black text-center leading-relaxed font-black italic">"Nem baj, ha nem ismertél magadra, de még az sem ha nem is ismersz ilyen vállalkozásokat, most nem őket keressük."</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION: Fordulópont -->
+    <section id="turning-point" class="bg-white py-24">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-4xl md:text-5xl font-black mb-16 text-gray-900 text-center font-black">Fordulópont</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-24">
+                <!-- Bal oldal: Szöveg -->
+                <div class="space-y-8">
+                    <p class="text-xl text-gray-700 leading-relaxed font-medium">
+                        <span class="text-blue-500 font-black">Ai assisted</span> fejlesztési megoldásokkal a fejlesztési sebesség radikálisan megnőtt. Amíg egy munkatárs korábban egy sprint során 4-5 közepes komplexitású feladatot tudott elvégezni, mostanra ez a szám a sokszorosára nőtt.
+                    </p>
+                    <p class="text-lg text-gray-600 leading-relaxed">
+                        Így egységnyi idő alatt lényegesen több feladatot tudunk kivitelezni. Ezzel gyakorlatilag a korábbi egy éves projektet gyakran kevesebb emberrel <span class="text-blue-600 font-bold">negyede idő alatt</span> tudjuk kivitelezni.
+                    </p>
+                </div>
+
+                <!-- Jobb oldal: Idővonal Vizualizáció -->
+                <div class="bg-gray-50 p-10 rounded-[3rem] dashed-border space-y-12">
+                    <!-- Fenti vonal: Hagyományos -->
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center text-xs font-black text-gray-400 uppercase tracking-widest">
+                            <span>Hagyományos modell</span>
+                            <span class="text-blue-500">3-4 fejlesztő, PM, BA, Teszter</span>
+                        </div>
+                        <div class="comparison-line border-4 border-blue-500">
+                            <div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div>
+                            <div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div>
+                            <div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div>
+                            <div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div>
+                            <div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div>
+                            <div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div><div class="line-segment bg-blue-500/20"></div>
+                        </div>
+                    </div>
+
+                    <!-- Lenti vonal: AI assisted (75%-al rövidebb) -->
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center text-xs font-black text-gray-400 uppercase tracking-widest">
+                            <span>AI Assisted modell</span>
+                            <span class="text-blue-500">2-3 fejlesztő, PM, BA, Teszter</span>
+                        </div>
+                        <div class="w-1/4 comparison-line border-2 border-blue-500">
+                            <!-- 24 szakasz, de mivel a tároló 25%-os szélességű, vizuálisan tömörítve van -->
+                            <div class="line-segment bg-blue-500"></div><div class="line-segment bg-blue-500"></div><div class="line-segment bg-blue-500"></div><div class="line-segment bg-blue-500"></div>
+                            <div class="line-segment bg-blue-500/40"></div><div class="line-segment bg-blue-500/40"></div><div class="line-segment bg-blue-500/40"></div><div class="line-segment bg-blue-500/40"></div>
+                            <div class="line-segment bg-blue-500/40"></div><div class="line-segment bg-blue-500/40"></div><div class="line-segment bg-blue-500/40"></div><div class="line-segment bg-blue-500/40"></div>
+                            <div class="line-segment bg-blue-500/40"></div><div class="line-segment bg-blue-500/40"></div><div class="line-segment bg-blue-500/40"></div><div class="line-segment bg-blue-500/40"></div>
+                            <div class="line-segment bg-blue-500/40"></div><div class="line-segment bg-blue-500/40"></div><div class="line-segment bg-blue-500/40"></div><div class="line-segment bg-blue-500/40"></div>
+                            <div class="line-segment bg-blue-500/40"></div><div class="line-segment bg-blue-500/40"></div><div class="line-segment bg-blue-500"></div><div class="line-segment bg-blue-500"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sebesség összehasonlító box -->
+            <div class="max-w-4xl mx-auto bg-gray-900 text-white rounded-[3rem] p-12 mb-24 shadow-2xl">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-black text-blue-400 font-black uppercase tracking-tight italic">Dolgok amik gyorsabbak lettek</h3>
+                        <ul class="space-y-3 font-bold text-lg">
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 bg-blue-400 rounded-full"></span>Kódolás</li>
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 bg-blue-400 rounded-full"></span>Automata tesztelés</li>
+                        </ul>
+                    </div>
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-black text-gray-500 font-black uppercase tracking-tight italic">Dolgok amik semmit sem gyorsultak</h3>
+                        <ul class="space-y-3 font-bold text-lg text-gray-300">
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 bg-gray-500 rounded-full"></span>Problémák és ügyféligények megértése</li>
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 bg-gray-500 rounded-full"></span>Megoldáskeresés</li>
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 bg-gray-500 rounded-full"></span>Manuális tesztelés</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Üzleti üzenet -->
+            <div class="text-center space-y-12 max-w-4xl mx-auto">
+                <h3 class="text-3xl md:text-4xl font-black text-gray-900 leading-tight font-black">
+                    Új piacok nyíltak meg. Az AI nemcsak gyorsabbá tette a fejlesztést. <br>
+                    <span class="text-blue-500">Lejjebb vitte a belépési küszöböt.</span>
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                    <div class="p-8 bg-blue-50 rounded-3xl border-2 border-dashed border-blue-200">
+                        <p class="text-lg font-bold text-gray-700">
+                            Ha van belső vállalati probléma, annak a megoldása nem 240.000 euró hanem <span class="text-blue-600">inkább 30.000.</span>
+                        </p>
+                    </div>
+                    <div class="p-8 bg-yellow-50 rounded-3xl border-2 border-dashed border-yellow-200">
+                        <p class="text-lg font-bold text-gray-700">
+                            Egy szoftvertermék profitabilitásához már nem kell több ezer felhasználó, elég <span class="text-yellow-600">akár 300 fő is.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <p class="text-xl text-gray-600 leading-relaxed font-medium">
+                    Az AI integráció már nem csak szöveggenerálásban merül ki. Ennél <span class="text-blue-500 font-bold">sokkal többre vagyunk képesek.</span>
+                </p>
+
+                <div class="pt-12 bg-white dashed-border p-12 rotate-1 shadow-xl">
+                    <h4 class="text-3xl font-black text-blue-500 mb-8 font-black uppercase italic tracking-tighter">És hogy miért beszéltem most erről?</h4>
+                    <p class="text-xl text-gray-800 leading-relaxed font-bold">
+                        Mert mi tudunk ebben segíteni. A koncepció kidolgozásától a piacra vitelig nemcsak segítünk, hanem <span class="underline decoration-blue-500 underline-offset-8">partnerek leszünk</span>. 
+                    </p>
+                    <div class="mt-10">
+                        <a href="#contact" class="inline-block bg-blue-500 text-white px-12 py-5 rounded-2xl font-black text-xl btn-playful shadow-xl shadow-blue-100 uppercase tracking-widest">
+                            Gyertek 1:2:1-ra, és megtudjátok!
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="bg-blue-500 text-white min-h-[60vh] py-24">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h2 class="text-4xl md:text-5xl font-black mb-10 text-white font-black">Miben segíthetünk?</h2>
+            <div class="bg-white text-gray-900 p-10 rounded-[3rem] shadow-2xl">
+                <div class="grid md:grid-cols-2 gap-10 text-left text-gray-800 font-bold">
+                    <div>
+                        <h3 class="text-xl font-black mb-4 text-blue-500 uppercase tracking-widest font-black">Elérhetőségek</h3>
+                        <div class="space-y-4">
+                            <p class="flex items-center gap-3 text-lg"><span class="w-10 h-10 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center font-black">@</span>vadaszzoltan@minic.ro</p>
+                            <p class="flex items-center gap-3 text-lg"><span class="w-10 h-10 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center font-black">W</span>minic.ro</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <div class="p-6 bg-gray-50 rounded-3xl border-4 border-dashed border-gray-100">
+                             <div class="w-24 h-24 opacity-10"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm15 0h3v2h-3v-2zm-2 2h2v3h-2v-3zm3 3h2v3h-2v-3zm-3 0h2v2h-2v-2zm-2-2h2v2h-2v-2zm5-5h2v2h-2v-2z"/></svg></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-white py-12 border-t border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 font-bold text-gray-400 italic">
+            <img src="https://minic.ro/wp-content/uploads/2018/02/miniclogo.png" alt="minic logo" class="h-8 grayscale opacity-50">
+            <p class="text-sm">© 2024 minic studio. Minden jog fenntartva.</p>
+        </div>
+    </footer>
+
+    <script>
+        const projectData = {
+            "IBaseT": {
+                title: "IBaseT",
+                paragraphs: [
+                    "Amerika gyártásvezérlési szoftvereket fejleszt globális piacra, a terméke egy monolitikus helyileg telepíthető szoftver ami szerte a világon került értékesítésre.",
+                    "Azzal a problémával küzdöttek, hogy a termék természetéből fakadóan minden több céget érintő fejlesztés esetén ezeket egyenként kellett kitelepíteni és konfigurálni, ami miatt nagyon lelassult a fejlesztés.",
+                    "A megoldás az lett, hogy a monolitikus alkalmazást felhő alapú alkalmazásra írtuk át. Ezzel gyorsult nekik a fejlesztési folyamat és ha valami probléma volt is, sokkal hatékonyabban tudtak közbeavatkozni."
+                ]
+            },
+            "Odemly": {
+                title: "Odemly",
+                paragraphs: [
+                    "Vegyed tulajdonú startup, aki személyre szabott autóillatosítókat gyárt. Nekik három kiemelkedő problémájuk volt: egyik a gyártási kapacitással kapcsolatos, jelentős problémát okozott, hogy a vegyes rendelések párosítása sok időt elvitt.",
+                    "A megoldásunkkal jelentős anyagköltséget tudtak megtakarítani, mert a nyomtatás során optimalizációs módszerrel helyeztük fel a képeket az ívekre. Csúcsidőszakban pedig megsokszoroztuk azt a mennyiséget, amit egységnyi idő alatt le tudnak gyártani."
+                ]
+            },
+            "Ebillo": { title: "Ebillo", paragraphs: ["Projekt leírása...", "Probléma leírása...", "Megoldás leírása..."] },
+            "Cocolabclub": { title: "Cocolabclub", paragraphs: ["Projekt leírása...", "Probléma leírása...", "Megoldás leírása..."] },
+            "Bettercard": { title: "Bettercard", paragraphs: ["Projekt leírása...", "Probléma leírása...", "Megoldás leírása..."] },
+            "Turbopass": { title: "Turbopass", paragraphs: ["Projekt leírása...", "Probléma leírása...", "Megoldás leírása..."] }
+        };
+
+        function showProjectDetails(projectName) {
+            const data = projectData[projectName];
+            const emptyState = document.getElementById('box-empty');
+            const contentArea = document.getElementById('box-content');
+            const titleEl = document.getElementById('project-title');
+            const textEl = document.getElementById('project-text');
+            const box = document.getElementById('project-box');
+            document.querySelectorAll('.example-btn').forEach(btn => {
+                if (btn.innerText === projectName) btn.classList.add('active'); else btn.classList.remove('active');
+            });
+            box.style.transform = 'rotate(2deg) scale(0.98)'; box.style.opacity = '0.5';
+            setTimeout(() => {
+                emptyState.classList.add('hidden'); contentArea.classList.remove('hidden');
+                titleEl.innerText = data.title; textEl.innerHTML = data.paragraphs.map(p => `<p>${p}</p>`).join('');
+                box.style.transform = 'rotate(2deg) scale(1)'; box.style.opacity = '1';
+            }, 200);
+        }
+
+        let currentItemIndex = 0;
+        function revealNextRecognitionItem() {
+            const items = document.querySelectorAll('.reveal-item');
+            if (currentItemIndex < items.length) { items[currentItemIndex].classList.add('show'); currentItemIndex++; }
+            else { items.forEach(el => el.classList.remove('show')); currentItemIndex = 0; }
+        }
+
+        function toggleSlideInCard(show) { document.getElementById('slide-in-card').style.transform = show ? 'translateY(0)' : 'translateY(100%)'; }
+
+        window.onscroll = function() {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            document.getElementById("progress-bar").style.width = (winScroll / height * 100) + "%";
+        };
+
+        let currentSlide = 0;
+        const track = document.getElementById('sliderTrack');
+        if (track) { setInterval(() => { currentSlide = (currentSlide + 1) % 3; track.style.transform = `translateX(-${currentSlide * 100}%)`; }, 4500); }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('opacity-100'); entry.target.style.transform = 'translateY(0)'; } });
+        }, { threshold: 0.05 });
+        document.querySelectorAll('section, .timeline-item, .sprint-item, #turning-point .dashed-border').forEach(el => {
+            el.classList.add('transition-all', 'duration-700', 'opacity-0'); el.style.transform = 'translateY(20px)'; observer.observe(el);
+        });
+    </script>
+</body>
+</html>
